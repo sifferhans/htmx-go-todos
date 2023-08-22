@@ -11,21 +11,23 @@
 
 <body class="p-8 max-w-2xl mx-auto h-full">
 	<h1 class="my-4 font-bold text-2xl">Todos</h1>
-	<ul class="flex flex-col gap-3">
+	<ul class="flex flex-col gap-3" id="todos">
 		{{range .Todos}}
 		<li class="px-4 py-3 rounded-lg bg-gray-100 flex gap-4 items-center">
 			<label for={{.Id}} class="flex-grow">{{ .Name }}</label>
-			<input type="checkbox" id={{.Id}} checked={{.Done}} />
-			<button hx-post="/delete" class="px-1">×</button>
+			{{if .Done}}
+			<input type="checkbox" id={{.Id}} checked />
+			{{else}}
+			<input type="checkbox" id={{.Id}} />
+			{{end}}
+			<button hx-post="/delete" hx-target="closest li" hx-swap="outerHTML" class="px-1">×</button>
 		</li>
 		{{end}}
-		<li>
-			<form hx-post="/add" class="flex w-full gap-2">
-				<input type="text" class="flex-grow rounded-md px-2 py-1.5 border border-gray-300" />
-				<button type="submit" class="px-2 py-1.5 rounded-md bg-gray-800 text-white">Add todo</button>
-			</form>
-		</li>
 	</ul>
+	<form hx-post="/add" hx-target="#todos" hx-swap="beforeend" class="flex w-full gap-2 mt-4">
+		<input type="text" name="name" class="flex-grow rounded-md px-2 py-1.5 border border-gray-300" />
+		<button type="submit" class="px-2 py-1.5 rounded-md bg-gray-800 text-white">Add todo</button>
+	</form>
 </body>
 
 </html>

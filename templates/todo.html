@@ -1,0 +1,9 @@
+<li class="px-4 py-3 rounded-lg bg-gray-100 flex gap-4 items-center">
+	<label for={{.Todo.Id}} class="flex-grow">{{ .Todo.Name }}</label>
+	{{if .Todo.Done}}
+	<input type="checkbox" id={{.Todo.Id}} checked />
+	{{else}}
+	<input type="checkbox" id={{.Todo.Id}} />
+	{{end}}
+	<button hx-post="/delete" hx-target="closest li" hx-swap="outerHTML" class="px-1">×</button>
+</li>
