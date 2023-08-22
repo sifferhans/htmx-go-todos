@@ -4,58 +4,34 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/hashicorp/go-memdb"
+	"github.com/gofiber/template/html/v2"
 )
 
 type Todo struct {
+	Id   int8
 	Name string
 	Done bool
 }
 
+var todos []Todo = []Todo{
+	{Name: "Create simple todo app", Done: false, Id: 0},
+	{Name: "Learn basics of Golang", Done: true, Id: 1},
+}
+
 func main() {
-	app := fiber.New()
+	// Set up template engine
+	engine := html.New("./templates", ".html")
 
-	schema := &memdb.DBSchema{
-		Tables: map[string]*memdb.TableSchema{
-			"todo": &memdb.TableSchema{
-				Name: "todo",
-				Indexes: map[string]*memdb.IndexSchema{
-					"id": &memdb.IndexSchema{
-						Name:    "id",
-						Unique:  true,
-						Indexer: &memdb.StringFieldIndex{Field: "Name"},
-					},
-				},
-			},
-		},
-	}
-
-	db, err := memdb.NewMemDB(schema)
-	if err != nil {
-		panic(err)
-	}
-
-	txn := db.Txn(true)
-
-	// Seed db with a couple of todos
-	todos := []*Todo{
-		&Todo{Name: "Create simple todo app", Done: false},
-		&Todo{Name: "Test Golang", Done: false},
-	}
-	for _, t := range todos {
-		if err := txn.Insert("todo", t); err != nil {
-			panic(err)
-		}
-	}
-	txn.Commit()
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello world!")
+		return c.Render("index", fiber.Map{
+			"Todos": todos,
+		})
 	})
 
-	app.Get("/todos", func(c *fiber.Ctx) error {
-		return c.SendString("Todos endpoint")
-	})
-
+	// Listen on port 3000
 	log.Fatal(app.Listen(":3000"))
 }
